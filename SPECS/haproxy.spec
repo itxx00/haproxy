@@ -8,13 +8,13 @@
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 1.5.14
+Version: 1.6.1
 Release: 1%{?dist}
 License: GPLv2+
 URL: http://haproxy.1wt.eu/
 Group: System Environment/Daemons
 
-Source0: http://haproxy.1wt.eu/download/1.4/src/haproxy-%{version}.tar.gz
+Source0: http://www.haproxy.org/download/1.6/src/haproxy-%{version}.tar.gz
 Source1: haproxy.init
 Source2: haproxy.cfg
 Source3: haproxy.logrotate
@@ -103,12 +103,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc CHANGELOG LICENSE README doc/*
-%doc examples/url-switching.cfg
-%doc examples/acl-content-sw.cfg
-%doc examples/content-sw-sample.cfg
-%doc examples/cttproxy-src.cfg
-%doc examples/haproxy.cfg
-%doc examples/tarpit.cfg
+%doc examples/*.cfg
 %dir %{haproxy_datadir}
 %dir %{haproxy_datadir}/*
 %dir %{haproxy_confdir}
@@ -122,6 +117,9 @@ fi
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Wed Oct 21 2015 Steven Haigh <netwiz@crc.id.au> - 1.6.1-1
+- Update to upstream 1.6.1
+
 * Wed Aug 26 2015 Steven Haigh <netwiz@crc.id.au> - 1.5.14-1
 - Update to upstream 1.5.14
 
