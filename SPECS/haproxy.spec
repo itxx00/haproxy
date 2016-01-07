@@ -8,7 +8,7 @@
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 1.6.1
+Version: 1.6.3
 Release: 1%{?dist}
 License: GPLv2+
 URL: http://haproxy.1wt.eu/
@@ -111,12 +111,15 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_initrddir}/%{name}
 %{_sbindir}/%{name}
-%{_sbindir}/haproxy-systemd-wrapper
+#%{_sbindir}/haproxy-systemd-wrapper
 %{_bindir}/halog
 %{_mandir}/man1/%{name}.1.gz
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Thu Jan 07 2016 Steven Haigh <netwiz@crc.id.au> - 1.6.3-1
+- Update to upstream 1.6.3
+
 * Wed Oct 21 2015 Steven Haigh <netwiz@crc.id.au> - 1.6.1-1
 - Update to upstream 1.6.1
 
