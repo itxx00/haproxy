@@ -4,14 +4,14 @@
 %define haproxy_gid     188
 %define haproxy_home    %{_localstatedir}/lib/haproxy
 %define haproxy_confdir %{_sysconfdir}/haproxy
-%define haproxy_datadir %{_datadir}/haproxy
+%define haproxy_datadir %{_datadir}/doc/haproxy-%{version}
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 1.6.3
+Version: 1.6.7
 Release: 1%{?dist}
 License: GPLv2+
-URL: http://haproxy.1wt.eu/
+URL: http://haproxy.org/
 Group: System Environment/Daemons
 
 Source0: http://www.haproxy.org/download/1.6/src/haproxy-%{version}.tar.gz
@@ -21,15 +21,23 @@ Source3: haproxy.logrotate
 
 Requires(pre): %{_sbindir}/groupadd
 Requires(pre): %{_sbindir}/useradd
+%if 0%{rhel} == 6
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
 Requires(postun): /sbin/service
+%endif
+%if 0%{rhel} == 7
+Requires: /bin/systemctl
+%endif
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: pcre-devel
 BuildRequires: openssl-devel
 BuildRequires: zlib-devel
+%if 0%{rhel} == 7
+BuildRequires: systemd-devel
+%endif
 Requires: pcre
 Requires: openssl
 Requires: zlib
@@ -53,18 +61,23 @@ possibility not to expose fragile web servers to the net.
 use_regparm="USE_REGPARM=1"
 %endif
 
-make %{?_smp_mflags} CPU="generic" TARGET="linux2628" USE_ZLIB=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm}
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_ZLIB=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm}
 
 pushd contrib/halog
 make halog
 popd
+
+%if 0%{rhel} == 7
+pushd contrib/systemd
+sed -e 's:@SBINDIR@:%{_sbindir}:' haproxy.service.in > haproxy.service
+popd
+%endif
 
 %install
 rm -rf %{buildroot}
 make install-bin DESTDIR=%{buildroot} PREFIX=%{_prefix}
 make install-man DESTDIR=%{buildroot} PREFIX=%{_prefix}
 
-%{__install} -p -D -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 %{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{haproxy_confdir}/%{name}.cfg
 %{__install} -p -D -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 %{__install} -d -m 0755 %{buildroot}%{haproxy_home}
@@ -72,6 +85,16 @@ make install-man DESTDIR=%{buildroot} PREFIX=%{_prefix}
 %{__install} -d -m 0755 %{buildroot}%{_bindir}
 %{__install} -p -m 0755 ./contrib/halog/halog %{buildroot}%{_bindir}/halog
 %{__install} -p -m 0644 ./examples/errorfiles/* %{buildroot}%{haproxy_datadir}
+%if 0%{rhel} == 6
+%{__install} -p -D -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
+%endif
+%if 0%{rhel} == 7
+%{__install} -p -m 0755 haproxy-systemd-wrapper %{buildroot}%{_sbindir}
+%{__install} -d -m 0755 %{buildroot}%{_unitdir}
+%{__install} -p -m 0644 ./contrib/systemd/haproxy.service %{buildroot}%{_unitdir}
+%endif
+
+find %{buildroot}
 
 for file in $(find . -type f -name '*.txt') ; do
     iconv -f ISO-8859-1 -t UTF-8 -o $file.new $file && \
@@ -87,36 +110,64 @@ rm -rf %{buildroot}
 %{_sbindir}/useradd -u %{haproxy_uid} -g %{haproxy_group} -d %{haproxy_home} -s /sbin/nologin -r %{haproxy_user} 2>/dev/null || :
 
 %post
+%if 0%{rhel} == 6
 /sbin/chkconfig --add haproxy
+%endif
+%if 0%{rhel} == 7
+/bin/systemctl daemon-reload
+%endif
 
 %preun
+%if 0%{rhel} == 6
 if [ "$1" -eq 0 ]; then
-    /sbin/service haproxy stop >/dev/null 2>&1
-    /sbin/chkconfig --del haproxy
+	/sbin/service haproxy stop >/dev/null 2>&1
+	/sbin/chkconfig --del haproxy
 fi
+%endif
+%if 0%{rhel} == 7
+if [ "$1" -eq 0 ]; then
+	/bin/systemctl disable haproxy
+	/bin/systemctl stop haproxy
+fi
+%endif
 
 %postun
+%if 0%{rhel} == 6
 if [ "$1" -ge 1 ]; then
     /sbin/service haproxy condrestart >/dev/null 2>&1 || :
 fi
+%endif
+%if 0%{rhel} == 7
+if [ "$1" -ge 1 ]; then
+    /bin/systemctl restart haproxy >/dev/null 2>&1 || :
+fi
+%endif
 
 %files
 %defattr(-,root,root,-)
 %doc CHANGELOG LICENSE README doc/*
 %doc examples/*.cfg
 %dir %{haproxy_datadir}
-%dir %{haproxy_datadir}/*
 %dir %{haproxy_confdir}
 %config(noreplace) %{haproxy_confdir}/%{name}.cfg
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%{_initrddir}/%{name}
 %{_sbindir}/%{name}
-#%{_sbindir}/haproxy-systemd-wrapper
 %{_bindir}/halog
 %{_mandir}/man1/%{name}.1.gz
+%if 0%{rhel} == 6
+%{_initrddir}/%{name}
+%endif
+%if 0%{rhel} == 7
+%{_sbindir}/%{name}-systemd-wrapper
+%{_unitdir}/%{name}.service
+%endif
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Sat Aug 06 2016 Steven Haigh <netwiz@crc.id.au> - 1.6.7-1
+- Update to upstream 1.6.7
+- Enable building for el7 with systemd.
+
 * Thu Jan 07 2016 Steven Haigh <netwiz@crc.id.au> - 1.6.3-1
 - Update to upstream 1.6.3
 
