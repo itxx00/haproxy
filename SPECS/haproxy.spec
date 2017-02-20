@@ -8,7 +8,7 @@
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 1.6.7
+Version: 1.7.2
 Release: 1%{?dist}
 License: GPLv2+
 URL: http://haproxy.org/
@@ -164,6 +164,9 @@ fi
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Mon Feb 20 2017 Steven Haigh <netwiz@crc.id.au> - 1.7.2-1
+- Update to upstream 1.7.2
+
 * Sat Aug 06 2016 Steven Haigh <netwiz@crc.id.au> - 1.6.7-1
 - Update to upstream 1.6.7
 - Enable building for el7 with systemd.
