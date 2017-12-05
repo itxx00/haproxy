@@ -8,13 +8,13 @@
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 1.7.9
+Version: 1.8.1
 Release: 1%{?dist}
 License: GPLv2+
 URL: http://haproxy.org/
 Group: System Environment/Daemons
 
-Source0: http://www.haproxy.org/download/1.6/src/haproxy-%{version}.tar.gz
+Source0: http://www.haproxy.org/download/1.8/src/haproxy-%{version}.tar.gz
 Source1: haproxy.init
 Source2: haproxy.cfg
 Source3: haproxy.logrotate
@@ -61,7 +61,11 @@ possibility not to expose fragile web servers to the net.
 use_regparm="USE_REGPARM=1"
 %endif
 
+%if 0%{rhel} == 7
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_ZLIB=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1
+%else
 make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_ZLIB=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm}
+%endif
 
 pushd contrib/halog
 make halog
@@ -89,7 +93,6 @@ make install-man DESTDIR=%{buildroot} PREFIX=%{_prefix}
 %{__install} -p -D -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 %endif
 %if 0%{rhel} == 7
-%{__install} -p -m 0755 haproxy-systemd-wrapper %{buildroot}%{_sbindir}
 %{__install} -d -m 0755 %{buildroot}%{_unitdir}
 %{__install} -p -m 0644 ./contrib/systemd/haproxy.service %{buildroot}%{_unitdir}
 %endif
@@ -158,12 +161,17 @@ fi
 %{_initrddir}/%{name}
 %endif
 %if 0%{rhel} == 7
-%{_sbindir}/%{name}-systemd-wrapper
 %{_unitdir}/%{name}.service
 %endif
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Tue Dec 05 2017 Steven Haigh <netwiz@crc.id.au> - 1.8.1-1
+- Update to 1.8.1
+
+* Mon Nov 27 2017 Steven Haigh <netwiz@crc.id.au> - 1.8.0-2
+- Update to 1.8.0
+
 * Fri Aug 25 2017 Steven Haigh <netwiz@crc.id.au> - 1.7.9-1
 - Update to upstream 1.7.9
 
