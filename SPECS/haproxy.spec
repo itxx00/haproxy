@@ -9,7 +9,7 @@
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
 Version: 1.8.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 URL: http://haproxy.org/
 Group: System Environment/Daemons
@@ -34,13 +34,15 @@ Requires: /bin/systemctl
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: pcre-devel
 BuildRequires: openssl-devel
-BuildRequires: zlib-devel
+#BuildRequires: zlib-devel
+BuildRequires: libslz-devel
 %if 0%{rhel} == 7
 BuildRequires: systemd-devel
 %endif
 Requires: pcre
 Requires: openssl
-Requires: zlib
+#Requires: zlib
+Requires: epel-release libslz
 Requires: setup >= 2.8.14-14
 
 %description
@@ -62,9 +64,9 @@ use_regparm="USE_REGPARM=1"
 %endif
 
 %if 0%{rhel} == 7
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_ZLIB=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1
 %else
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_ZLIB=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm}
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm}
 %endif
 
 pushd contrib/halog
@@ -166,6 +168,10 @@ fi
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Fri Dec 22 2017 Steven Haigh <netwiz@crc.id.au> - 1.8.1-2
+- Switch to using libslz instead of zlib for compression
+- Add requirement on libslz from EPEL
+
 * Tue Dec 05 2017 Steven Haigh <netwiz@crc.id.au> - 1.8.1-1
 - Update to 1.8.1
 
