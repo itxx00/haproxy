@@ -8,7 +8,7 @@
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 1.9.1
+Version: 1.9.3
 Release: 1%{?dist}
 License: GPLv2+
 URL: http://haproxy.org/
@@ -168,6 +168,9 @@ fi
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Tue Jan 29 2019 Steven Haigh <netwiz@crc.id.au> - 1.9.3-1
+- Update to 1.9.3
+
 * Mon Jan 14 2019 Steven Haigh <netwiz@crc.id.au> - 1.9.1-1
 - Update to 1.9.1
 
