@@ -64,20 +64,14 @@ use_regparm="USE_REGPARM=1"
 %endif
 
 %if 0%{rhel} == 7
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir}
 %else
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm}
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} SBINDIR=%{_sbindir}
 %endif
 
 pushd contrib/halog
 make halog
 popd
-
-%if 0%{rhel} == 7
-pushd contrib/systemd
-sed -e 's:@SBINDIR@:%{_sbindir}:' haproxy.service.in > haproxy.service
-popd
-%endif
 
 %install
 rm -rf %{buildroot}
