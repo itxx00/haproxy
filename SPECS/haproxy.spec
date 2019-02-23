@@ -65,6 +65,9 @@ use_regparm="USE_REGPARM=1"
 
 %if 0%{rhel} == 7
 make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir}
+pushd contrib/systemd
+make
+popd
 %else
 make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} SBINDIR=%{_sbindir}
 %endif
