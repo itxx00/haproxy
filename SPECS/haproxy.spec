@@ -8,7 +8,7 @@
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 1.9.8
+Version: 2.0.0
 Release: 1%{?dist}
 License: GPLv2+
 URL: http://haproxy.org/
@@ -64,12 +64,12 @@ use_regparm="USE_REGPARM=1"
 %endif
 
 %if 0%{rhel} == 7
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir}
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir}
 pushd contrib/systemd
 make
 popd
 %else
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux2628" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} SBINDIR=%{_sbindir}
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} SBINDIR=%{_sbindir}
 %endif
 
 pushd contrib/halog
@@ -165,6 +165,9 @@ fi
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Mon Jun 17 2019 Steven Haigh <netwiz@crc.id.au> - 2.0.0-1
+- Update to 2.0.0
+
 * Tue May 14 2019 Steven Haigh <netwiz@crc.id.au> - 1.9.8-1
 - Update to 1.9.8
 
