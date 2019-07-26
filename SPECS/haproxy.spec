@@ -64,12 +64,12 @@ use_regparm="USE_REGPARM=1"
 %endif
 
 %if 0%{rhel} == 7
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir}
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
 pushd contrib/systemd
 make
 popd
 %else
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} SBINDIR=%{_sbindir}
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
 %endif
 
 pushd contrib/halog
