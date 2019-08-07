@@ -69,7 +69,7 @@ pushd contrib/systemd
 make
 popd
 %else
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 USE_NS= ${use_regparm} SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
 %endif
 
 pushd contrib/halog
