@@ -18,6 +18,7 @@ Source0: http://www.haproxy.org/download/2.0/src/haproxy-%{version}.tar.gz
 Source1: haproxy.init
 Source2: haproxy.cfg
 Source3: haproxy.logrotate
+Source4: haproxy.service
 
 Requires(pre): %{_sbindir}/groupadd
 Requires(pre): %{_sbindir}/useradd
@@ -81,7 +82,7 @@ rm -rf %{buildroot}
 make install-bin DESTDIR=%{buildroot} PREFIX=%{_prefix}
 make install-man DESTDIR=%{buildroot} PREFIX=%{_prefix}
 
-%{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{haproxy_confdir}/%{name}.cfg
+%{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{haproxy_confdir}/01%{name}.cfg
 %{__install} -p -D -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 %{__install} -d -m 0755 %{buildroot}%{haproxy_home}
 %{__install} -d -m 0755 %{buildroot}%{haproxy_datadir}
@@ -93,7 +94,7 @@ make install-man DESTDIR=%{buildroot} PREFIX=%{_prefix}
 %endif
 %if 0%{rhel} == 7
 %{__install} -d -m 0755 %{buildroot}%{_unitdir}
-%{__install} -p -m 0644 ./contrib/systemd/haproxy.service %{buildroot}%{_unitdir}
+%{__install} -p -m 0644 %{SOURCE4} %{buildroot}%{_unitdir}
 %endif
 
 find %{buildroot}
@@ -118,6 +119,7 @@ rm -rf %{buildroot}
 %if 0%{rhel} == 7
 /bin/systemctl daemon-reload
 %endif
+/bin/rm -f /etc/haproxy/*.rpmnew
 
 %preun
 %if 0%{rhel} == 6
@@ -151,7 +153,7 @@ fi
 %doc examples/*.cfg
 %dir %{haproxy_datadir}
 %dir %{haproxy_confdir}
-%config(noreplace) %{haproxy_confdir}/%{name}.cfg
+%config(noreplace) %{haproxy_confdir}/01%{name}.cfg
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_sbindir}/%{name}
 %{_bindir}/halog
