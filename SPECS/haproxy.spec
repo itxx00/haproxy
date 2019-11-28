@@ -43,7 +43,7 @@ BuildRequires: systemd-devel
 Requires: pcre
 Requires: openssl
 #Requires: zlib
-Requires: epel-release libslz
+Requires: libslz
 Requires: setup >= 2.8.14-14
 
 %description
