@@ -154,10 +154,8 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc CHANGELOG LICENSE README doc/*
-%doc examples/*.cfg
-%dir %{haproxy_datadir}
-%dir %{haproxy_confdir}
+%{haproxy_datadir}/*
+%{haproxy_confdir}/*
 %config(noreplace) %{haproxy_confdir}/%{name}.cfg
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_sbindir}/%{name}
