@@ -21,28 +21,28 @@ Source3: haproxy.logrotate
 
 Requires(pre): %{_sbindir}/groupadd
 Requires(pre): %{_sbindir}/useradd
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: pcre-devel
+BuildRequires: openssl-devel
 %if 0%{rhel} == 6
+Requires: epel-release libslz
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
 Requires(postun): /sbin/service
+BuildRequires: libslz-devel
 %endif
 %if 0%{rhel} == 7
+BuildRequires: systemd-devel libslz-devel
+Requires: epel-release
 Requires: /bin/systemctl
 %endif
-
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: pcre-devel
-BuildRequires: openssl-devel
-#BuildRequires: zlib-devel
-BuildRequires: libslz-devel
-%if 0%{rhel} == 7
-BuildRequires: systemd-devel
+%if 0%{rhel} == 8
+BuildRequires: zlib-devel systemd-devel
+Requires: zlib
 %endif
 Requires: pcre
 Requires: openssl
-#Requires: zlib
-Requires: epel-release libslz
 Requires: setup >= 2.8.14-14
 
 %description
@@ -63,12 +63,19 @@ possibility not to expose fragile web servers to the net.
 use_regparm="USE_REGPARM=1"
 %endif
 
+%if 0%{rhel} >= 8
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
+pushd contrib/systemd
+make
+popd
+%endif
 %if 0%{rhel} == 7
 make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
 pushd contrib/systemd
 make
 popd
-%else
+%endif
+%if 0%{rhel} == 6
 make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_SLZ=1 USE_PCRE=1 USE_OPENSSL=1 USE_NS= ${use_regparm} SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
 %endif
 
@@ -91,7 +98,7 @@ make install-man DESTDIR=%{buildroot} PREFIX=%{_prefix}
 %if 0%{rhel} == 6
 %{__install} -p -D -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 %endif
-%if 0%{rhel} == 7
+%if 0%{rhel} >= 7
 %{__install} -d -m 0755 %{buildroot}%{_unitdir}
 %{__install} -p -m 0644 ./contrib/systemd/haproxy.service %{buildroot}%{_unitdir}
 %endif
@@ -115,7 +122,7 @@ rm -rf %{buildroot}
 %if 0%{rhel} == 6
 /sbin/chkconfig --add haproxy
 %endif
-%if 0%{rhel} == 7
+%if 0%{rhel} >= 7
 /bin/systemctl daemon-reload
 %endif
 
@@ -126,7 +133,7 @@ if [ "$1" -eq 0 ]; then
 	/sbin/chkconfig --del haproxy
 fi
 %endif
-%if 0%{rhel} == 7
+%if 0%{rhel} >= 7
 if [ "$1" -eq 0 ]; then
 	/bin/systemctl disable haproxy
 	/bin/systemctl stop haproxy
@@ -139,7 +146,7 @@ if [ "$1" -ge 1 ]; then
     /sbin/service haproxy condrestart >/dev/null 2>&1 || :
 fi
 %endif
-%if 0%{rhel} == 7
+%if 0%{rhel} >= 7
 if [ "$1" -ge 1 ]; then
     /bin/systemctl restart haproxy >/dev/null 2>&1 || :
 fi
@@ -159,12 +166,15 @@ fi
 %if 0%{rhel} == 6
 %{_initrddir}/%{name}
 %endif
-%if 0%{rhel} == 7
+%if 0%{rhel} >= 7
 %{_unitdir}/%{name}.service
 %endif
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Fri Dec 20 2019 Steven Haigh <netwiz@crc.id.au> - 2.0.11-2
+- Enable building for RHEL8
+
 * Fri Dec 13 2019 Steven Haigh <netwiz@crc.id.au> - 2.0.11-1
 - Update to 2.0.11
 
