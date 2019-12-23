@@ -9,7 +9,7 @@
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
 Version: 2.0.11
-Release: 1%{?dist}
+Release: 3%{?dist}
 License: GPLv2+
 URL: http://haproxy.org/
 Group: System Environment/Daemons
@@ -64,7 +64,7 @@ use_regparm="USE_REGPARM=1"
 %endif
 
 %if 0%{rhel} >= 8
-make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
+make %{?_smp_mflags} ARCH="x86_64" CPU="generic" TARGET="linux-glibc" USE_ZLIB=1 USE_PCRE=1 USE_OPENSSL=1 ${use_regparm} USE_SYSTEMD=1 SBINDIR=%{_sbindir} EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
 pushd contrib/systemd
 make
 popd
@@ -170,6 +170,9 @@ fi
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Mon Dec 23 2019 Steven Haigh <netwiz@crc.id.au> - 2.0.11-3
+- Enable ZLIB compression on RHEL8 and above
+
 * Fri Dec 20 2019 Steven Haigh <netwiz@crc.id.au> - 2.0.11-2
 - Enable building for RHEL8
 
