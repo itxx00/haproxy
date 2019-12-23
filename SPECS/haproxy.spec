@@ -8,7 +8,7 @@
 
 Name: haproxy
 Summary: HA-Proxy is a TCP/HTTP reverse proxy for high availability environments
-Version: 2.0.11
+Version: 2.0.12
 Release: 3%{?dist}
 License: GPLv2+
 URL: http://haproxy.org/
@@ -170,6 +170,9 @@ fi
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Mon Dec 23 2019 Steven Haigh <netwiz@crc.id.au> - 2.0.12-3
+- Update to 2.0.12
+
 * Mon Dec 23 2019 Steven Haigh <netwiz@crc.id.au> - 2.0.11-3
 - Enable ZLIB compression on RHEL8 and above
 
